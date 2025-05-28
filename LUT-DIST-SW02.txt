@@ -1,0 +1,113 @@
+version 17.12
+service timestamps debug uptime
+service timestamps log datetime msec
+!
+hostname LUT-DIST-SW02
+!
+boot-start-marker
+boot-end-marker
+!
+!
+no aaa new-model
+!
+!
+!
+clock timezone EET 2 0
+clock summer-time EEST recurring last Sun Mar 3:00 last Sun Oct 4:00
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip audit notify log
+ip audit po max-events 100
+no ip domain lookup
+ip domain name vector.com
+ip cef
+login on-success log
+no ipv6 cef
+!
+!
+!
+!
+!
+!
+!
+vtp version 1
+multilink bundle-name authenticated
+!
+!
+!
+!
+memory free low-watermark processor 80589
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+enable secret 9 $9$2etzJvHrDk3Z2.$hL2evZZDmlOS154xRBs7grmE7/gVFBnJeJGglFYOrFk
+!
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+interface Ethernet0/0
+!
+interface Ethernet0/1
+!
+interface Ethernet0/2
+!
+interface Ethernet0/3
+!
+interface Ethernet1/0
+!
+interface Ethernet1/1
+!
+interface Ethernet1/2
+!
+interface Ethernet1/3
+!
+ip forward-protocol nd
+!
+!
+ip http server
+ip http secure-server
+ip ssh bulk-mode 131072
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+banner motd ^C
+********************************************************************
+*  WARNING: This system is the property of Vector LLC (Lab).       *
+*  Access is restricted to authorized users.                       *
+*                                                                  *
+*  Unapproved use or misuse will be prosecuted                     *
+*  and may result in termination of your contract.                 *
+*                                                                  *
+*  All traffic is monitored and logged. By continuing,             *
+*  you consent to that monitoring.                                 *
+********************************************************************
+^C
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input ssh
+!
+!
+end
