@@ -8,7 +8,13 @@ boot-start-marker
 boot-end-marker
 !
 !
-no aaa new-model
+aaa new-model
+!
+!
+aaa authentication login default local
+!
+!
+aaa session-id common
 !
 !
 !
@@ -38,10 +44,46 @@ no ipv6 cef
 !
 !
 !
-vtp version 1
+vtp version 3
 multilink bundle-name authenticated
 !
+crypto pki trustpoint TP-self-signed-131184649
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-131184649
+ revocation-check none
+ rsakeypair TP-self-signed-131184649
+ hash sha256
 !
+!
+crypto pki certificate chain TP-self-signed-131184649
+ certificate self-signed 01
+  3082032E 30820216 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030
+  30312E30 2C060355 04030C25 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 31333131 38343634 39301E17 0D323530 35323930 37343335
+  385A170D 33353035 32393037 34333538 5A303031 2E302C06 03550403 0C25494F
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3133 31313834
+  36343930 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 82010A02
+  82010100 CD20A016 36730ED0 7FA80B2F 46F73477 0A05B460 C7EDC5BC 737AED27
+  5247D7E9 78711850 FBEEB9C4 C4FE7C95 A0D7626F 802D1828 D69F3E27 A599D4B2
+  5E79EAE7 333FAE9A 5E88C429 978643E4 8D9E34B8 F9269E2C 6350B37A 005BCB4C
+  07D83D3F 807EA289 856B3517 A46B59D5 2AE8E1CB A0FDAAEF FFB31286 09AD5B50
+  6CC80486 3A254E59 75B53FC5 D2125EDF 010B6C35 4ED8FFFF F6B44C6F CF47A199
+  EF9C3FAF 87CAFB75 257A0063 212F964B D69F0F06 6D871A9F E5BCB3A5 73DF9B86
+  EA937861 3519DE7E B58F2504 C41BAA60 BBB10D64 E8C06EB9 EB008482 D9454A07
+  DC17052C D965084F E972AD74 17E648D8 FB623BDE C31EA184 0470044C 69AFE191
+  31FC9BA7 02030100 01A35330 51301D06 03551D0E 04160414 BF1D9AA9 A8E0D886
+  41F72B4A 9855FF52 2B8F913D 301F0603 551D2304 18301680 14BF1D9A A9A8E0D8
+  8641F72B 4A9855FF 522B8F91 3D300F06 03551D13 0101FF04 05300301 01FF300D
+  06092A86 4886F70D 01010B05 00038201 01004FB3 BCB3F16C EBF73B98 D6964C4D
+  F715E3F6 3BB28B14 7EE19128 256A5AD3 2832BF83 F6B5C0D4 757F285B B341380A
+  516B6D09 1C1A8E8F BCC159D8 B8822404 906B3431 724121C7 4BBC4D8E 44B1A66F
+  F694EBA0 307356C9 3EA86FB9 AC64BF73 BBA2FBF5 01C5FB42 DD405811 FFD8E3FF
+  B06683F6 3BEE88DB AB61B39E D5D53615 FC3E6C66 D2CE5340 1BF8DD37 185C4572
+  6FC734EC 7E9AF3E9 1E30B611 18B9D15B 56967E6A 6D6DFF76 55D5DE81 80551590
+  12C35900 B9F5F3E8 6D5F4079 252E5665 178BA356 DEBD5F92 0F9D93AC 246A11ED
+  3D987D95 EE1B538A 70C7A034 EC90A183 404721B1 33CFFE19 6E1BCD7E 56027346
+  B252603E 3F7F2153 E999C461 89F7A74E 6CAE
+        quit
 !
 !
 memory free low-watermark processor 80589
@@ -49,8 +91,10 @@ memory free low-watermark processor 80589
 !
 spanning-tree mode rapid-pvst
 spanning-tree extend system-id
+!
 enable secret 9 $9$FXmuy8fVqVw94E$nxFCOegR6T5o8z5GpuBHoVX8v4fCUnbfM3giqhP8efo
 !
+username serhii privilege 15 secret 9 $9$vEP0Ne1Svs8RYk$tnjq/Ie2EFBG3HYt5yaI9VeQGkEAJvmUVdKmPeRZ67k
 !
 vlan internal allocation policy ascending
 !
@@ -59,8 +103,18 @@ vlan internal allocation policy ascending
 !
 !
 interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
+ switchport nonegotiate
 !
 interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
+ switchport nonegotiate
 !
 interface Ethernet0/2
 !
@@ -72,6 +126,10 @@ ip forward-protocol nd
 ip http server
 ip http secure-server
 ip ssh bulk-mode 131072
+ip ssh time-out 30
+ip ssh authentication-retries 2
+!
+!
 !
 !
 !
@@ -81,7 +139,7 @@ ip ssh bulk-mode 131072
 control-plane
 !
 !
-banner motd ^C
+banner motd ^CC
 ********************************************************************
 *  WARNING: This system is the property of Vector LLC (Lab).       *
 *  Access is restricted to authorized users.                       *
@@ -98,7 +156,6 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
- login
  transport input ssh
 !
 !

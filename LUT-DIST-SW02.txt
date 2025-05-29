@@ -8,7 +8,16 @@ boot-start-marker
 boot-end-marker
 !
 !
-no aaa new-model
+logging discriminator quiet msg-body drops EXCESSCOLL
+logging buffered discriminator quiet
+logging console notifications
+aaa new-model
+!
+!
+aaa authentication login default local
+!
+!
+aaa session-id common
 !
 !
 !
@@ -38,10 +47,46 @@ no ipv6 cef
 !
 !
 !
-vtp version 1
+vtp version 3
 multilink bundle-name authenticated
 !
+crypto pki trustpoint TP-self-signed-131184646
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-131184646
+ revocation-check none
+ rsakeypair TP-self-signed-131184646
+ hash sha256
 !
+!
+crypto pki certificate chain TP-self-signed-131184646
+ certificate self-signed 01
+  3082032E 30820216 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030
+  30312E30 2C060355 04030C25 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 31333131 38343634 36301E17 0D323530 35323930 37343334
+  385A170D 33353035 32393037 34333438 5A303031 2E302C06 03550403 0C25494F
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3133 31313834
+  36343630 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 82010A02
+  82010100 B088F980 9F44B753 78FCCAC5 E40F830D D2EF3238 6C6F52A3 2112D676
+  760B8A36 4258AEEC BC919B0C EADEE73F B63BAAF0 A7E6D960 2AE397F1 C525BE54
+  9D121C6E 14BE21B9 29E6BC0F 7C323594 7C03C5AE BD04C79B 80167C5A 2D01EDE4
+  98244B08 6723142B 5723DF5D 94DA8B33 4CE4BCE6 661F7964 3AAD98E4 2C900283
+  C2A049E0 818F9E51 C88008F7 FB7F0750 76DED3FC 43103AA1 FBFA51E1 DF9E0F78
+  003842E7 96CAFD4A B61A8BC5 AECCE9DA 83552B93 1AD755FC 16F4E3CC ABFBE1D5
+  B5D9599E F31FEADA 98B23812 D33ADD5C 4AC3CFD2 B2EB58D6 9D77740E 58D385C9
+  3E7446F8 6DDA1C28 8EB0C949 5C6432FA 54DF2933 1A7C52F4 4C039D1C 7076129E
+  7A2CA8C9 02030100 01A35330 51301D06 03551D0E 04160414 F6F01C5C FF0FA3FA
+  FE6D76E6 A506A1A0 7E33F93A 301F0603 551D2304 18301680 14F6F01C 5CFF0FA3
+  FAFE6D76 E6A506A1 A07E33F9 3A300F06 03551D13 0101FF04 05300301 01FF300D
+  06092A86 4886F70D 01010B05 00038201 01008E16 449390C5 E7839FFB 0E619B30
+  93CFADA9 3CBFC61E 0125EBE1 4788EABD 4991D6FE 8E32EAEF 31A05952 D11D431A
+  293F2DAB BFF2F4DB FF0BEDF1 736A1BB8 4CE50988 7D350C66 B0318010 8C072B6F
+  1CACBAF6 DD2A9D9F 12597166 17C57808 12F334D0 1C65E77C 7DFB47EC 5B371934
+  32F0B7EF DB15F40F 74953DD4 9643AAA6 F3EE3165 576586E0 32A316B0 54165B9B
+  4840FCE1 C2268D49 92AEF578 0FE453E1 A64692FD 8F57E6D1 9BC8868D 69C1995F
+  9EA324D6 8A36020E 4C5F3C14 1028B02F A8179F04 3B8D7954 C2496D68 B116130A
+  0F1999A8 1111BBBF F4CFFF34 8CA7B2F1 1249D02D 282C4F04 2B82C3B1 934CF37B
+  DDDA0568 56797434 C6876BF2 F6B5A231 A448
+        quit
 !
 !
 memory free low-watermark processor 80589
@@ -49,8 +94,10 @@ memory free low-watermark processor 80589
 !
 spanning-tree mode rapid-pvst
 spanning-tree extend system-id
+!
 enable secret 9 $9$2etzJvHrDk3Z2.$hL2evZZDmlOS154xRBs7grmE7/gVFBnJeJGglFYOrFk
 !
+username serhii privilege 15 secret 9 $9$eQJRSLG9czOUxU$M1ragrSREkM.R0O.uxW6T377Gp6cDIqo4/MkHR56AOA
 !
 vlan internal allocation policy ascending
 !
@@ -58,21 +105,56 @@ vlan internal allocation policy ascending
 !
 !
 !
+interface Port-channel1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
+!
 interface Ethernet0/0
+ no switchport
+ no ip address
 !
 interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
+ channel-group 1 mode active
 !
 interface Ethernet0/2
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
+ channel-group 1 mode active
 !
 interface Ethernet0/3
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
 !
 interface Ethernet1/0
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
 !
 interface Ethernet1/1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
 !
 interface Ethernet1/2
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 2-7,999
+ switchport mode trunk
 !
 interface Ethernet1/3
+ shutdown
 !
 ip forward-protocol nd
 !
@@ -80,6 +162,10 @@ ip forward-protocol nd
 ip http server
 ip http secure-server
 ip ssh bulk-mode 131072
+ip ssh time-out 30
+ip ssh authentication-retries 2
+!
+!
 !
 !
 !
@@ -89,7 +175,7 @@ ip ssh bulk-mode 131072
 control-plane
 !
 !
-banner motd ^C
+banner motd ^CC
 ********************************************************************
 *  WARNING: This system is the property of Vector LLC (Lab).       *
 *  Access is restricted to authorized users.                       *
@@ -106,7 +192,6 @@ line con 0
  logging synchronous
 line aux 0
 line vty 0 4
- login
  transport input ssh
 !
 !

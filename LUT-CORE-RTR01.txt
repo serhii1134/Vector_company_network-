@@ -1,7 +1,6 @@
 version 17.3
 service timestamps debug uptime
 service timestamps log datetime msec
-! Call-home is enabled by Smart-Licensing.
 service call-home
 platform qfp utilization monitor load 80
 platform punt-keepalive disable-kernel-core
@@ -15,7 +14,17 @@ boot-end-marker
 !
 enable secret 9 $9$7xwBMefthd2fvU$B7pBnf0bFC1OsS6BEBabIff77DzWBbCG/dTTm7Q1ssQ
 !
-no aaa new-model
+aaa new-model
+!
+!
+aaa authentication login default local
+!
+!
+!
+!
+!
+!
+aaa session-id common
 clock timezone EET 2 0
 clock summer-time EEST recurring last Sun Mar 3:00 last Sun Oct 4:00
 !
@@ -65,6 +74,12 @@ crypto pki trustpoint SLA-TrustPoint
  enrollment pkcs12
  revocation-check crl
 !
+crypto pki trustpoint TP-self-signed-860900277
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-860900277
+ revocation-check none
+ rsakeypair TP-self-signed-860900277
+!
 !
 crypto pki certificate chain SLA-TrustPoint
  certificate ca 01
@@ -95,14 +110,44 @@ crypto pki certificate chain SLA-TrustPoint
   418616A9 4093E049 4D10AB75 27E86F73 932E35B5 8862FDAE 0275156F 719BB2F0
   D697DF7F 28
         quit
+crypto pki certificate chain TP-self-signed-860900277
+ certificate self-signed 01
+  3082032E 30820216 A0030201 02020101 300D0609 2A864886 F70D0101 05050030
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 38363039 30303237 37301E17 0D323530 35323930 37343532
+  385A170D 33353035 32393037 34353238 5A303031 2E302C06 03550403 1325494F
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3836 30393030
+  32373730 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 82010A02
+  82010100 B2022899 C083AAEA 2E658193 BDF964DF F461D2FB 4DD91DAF 50AEC3E3
+  6F3813B3 C1B49AD9 53404820 99AE4F17 1ADECD95 B735AF79 CC4A577D 7A35D8A9
+  0A92B19D 8E50FC59 2FA17C9B 337C11ED 5F3358DE 31E6DF5D 172B2895 31EA08E1
+  A1E8B3E6 00CFF3BE 92677380 B8C3B49A 32AACFC5 37D3E6D9 E5FD48B6 C9704421
+  5D3A0ADA C37B536F E1ADD50C AB3EF720 EC3ADAF0 466CFDBA 566B830B FFA81178
+  41828DAD 641E3327 D9F09C53 AA218830 496B51C8 4FCA8012 4B541F28 5261A847
+  B5FB2F8A 2A9B8BDF ECC05F55 71032B04 D70F089B 228DCF5D DDAE86D2 A997CDDB
+  8A5A41D6 4DEF1529 246CC8BB B8BD9F7E 652DB398 ABECA524 803765D1 3F6FE6BF
+  D00D8A39 02030100 01A35330 51300F06 03551D13 0101FF04 05300301 01FF301F
+  0603551D 23041830 1680144F 3E1AED20 77925587 E6BCA72D 1D9C1014 AAA8CA30
+  1D060355 1D0E0416 04144F3E 1AED2077 925587E6 BCA72D1D 9C1014AA A8CA300D
+  06092A86 4886F70D 01010505 00038201 010010FC 402A1964 6FD7F57F 431D611F
+  D34C320E 72BF6414 B1AC11D5 F7D1B705 9BC3ED71 7E6201AC 90F79A12 EA02E5E4
+  7EFCFCB2 3702674C 02AD8CE4 3A6B260B 4CD3B00C 27B4DD16 BD02EE36 EEF75CB9
+  203EC192 295328E6 73AFC3CC 010C39C0 A8D471C4 125172FD 6F368020 1817FBA4
+  07E1DE64 13441866 0FA3BC67 A66ADDBC D572482A C5D1AE0A CEF868B5 3F78CBD9
+  3502D7DF D5F963E4 CA917B99 18F73027 AB8E23E6 FCB7F056 1D45FD0E AF088771
+  0B790347 1BD070D2 04CCC66B FED0F331 878A35DE 6D9DE294 14629041 E482F683
+  884FB871 1EB98B22 FEE3D3B8 78462978 973B024D 70A4E038 0E761DD0 518BE6DB
+  F6F53397 97ED5D53 F20E821B B8A798EF B698
+        quit
 !
-license udi pid CSR1000V sn 9XZ6JD96O5E
+license udi pid CSR1000V sn 9IV4T73LE71
 diagnostic bootup level minimal
 memory free low-watermark processor 71464
 !
 !
 spanning-tree extend system-id
 !
+username serhii privilege 15 secret 9 $9$abbRxaqx1Panz.$IshrVHmvmxZn/jVIQsixVn/wavGmRR8Cg2jAlFdN0xY
 !
 redundancy
 !
@@ -162,6 +207,11 @@ ip forward-protocol nd
 no ip http server
 ip http secure-server
 !
+ip ssh time-out 30
+ip ssh authentication-retries 2
+ip ssh version 2
+!
+!
 !
 !
 !
@@ -175,7 +225,7 @@ control-plane
 !
 !
 !
-banner motd ^COF
+banner motd ^CCOF
 ********************************************************************
 *  WARNING: This system is the property of Vector LLC (Lab).       *
 *  Access is restricted to authorized users.                       *
@@ -192,14 +242,11 @@ line con 0
  logging synchronous
  stopbits 1
 line vty 0
- login
  transport input ssh
 line vty 1
- login
  length 0
  transport input ssh
-line vty 2 4
- login
+line vty 2 5
  transport input ssh
 !
 call-home
@@ -215,4 +262,3 @@ call-home
 !
 !
 end
-
